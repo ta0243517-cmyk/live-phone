@@ -20,7 +20,14 @@ jobs:
           sed -i 's/flutter\.minSdkVersion/24/' android/app/build.gradle*
           sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' android/app/src/main/AndroidManifest.xml
           flutter pub get
-          flutter build apk --release --no-shrink --target-platform android-arm64
+          set +e
+          flutter build apk --release --no-shrink --target-platform android-arm64 2>&1 | tee build.log
+          code=${PIPESTATUS[0]}
+          if [ $code -ne 0 ]; then
+            echo "=========== ERROR SUMMARY ==========="
+            grep -n -A12 -E "What went wrong|error:|Error:|FAILURE" build.log | head -70
+            exit $code
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: app-apk
