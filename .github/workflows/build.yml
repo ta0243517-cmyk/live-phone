@@ -12,7 +12,8 @@ jobs:
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: |
+      - name: Build
+        run: |
           flutter create --org com.example --project-name live_app app
           cp main.dart app/lib/main.dart
           cp pubspec.yaml app/pubspec.yaml
@@ -21,13 +22,19 @@ jobs:
           sed -i 's#<application#<uses-permission android:name="android.permission.INTERNET"/>\n    <application#' android/app/src/main/AndroidManifest.xml
           flutter pub get
           set +e
-          flutter build apk --release --no-shrink --target-platform android-arm64 2>&1 | tee build.log
-          code=${PIPESTATUS[0]}
+          flutter build apk --release --no-shrink --target-platform android-arm64 > build.log 2>&1
+          code=$?
           if [ $code -ne 0 ]; then
-            echo "=========== ERROR SUMMARY ==========="
-            grep -n -A12 -E "What went wrong|error:|Error:|FAILURE" build.log | head -70
-            exit $code
+            {
+              echo '## BUILD ERROR - is poore text ka screenshot bhejo'
+              echo '```'
+              grep -n -A12 -E "What went wrong|Execution failed|error:" build.log | head -45
+              echo '--- LOG KA AAKHRI HISSA ---'
+              tail -n 25 build.log
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
+          exit $code
       - uses: actions/upload-artifact@v4
         with:
           name: app-apk
