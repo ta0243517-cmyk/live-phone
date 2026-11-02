@@ -14,6 +14,16 @@ jobs:
           channel: stable
       - name: Build
         run: |
+          mkdir -p ~/.gradle/init.d
+          cat > ~/.gradle/init.d/force.gradle <<'EOF'
+          allprojects {
+            afterEvaluate { p ->
+              if (p.hasProperty('android')) {
+                try { p.android.compileSdkVersion(36) } catch (e) { println e }
+              }
+            }
+          }
+          EOF
           flutter create --org com.example --project-name live_app app
           cp main.dart app/lib/main.dart
           cp pubspec.yaml app/pubspec.yaml
