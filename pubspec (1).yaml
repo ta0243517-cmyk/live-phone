@@ -1,0 +1,18 @@
+name: live_app
+description: Phone streams a pre-recorded video to YouTube Live
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ffmpeg_kit_flutter_new: ^4.5.3
+  file_picker: ^8.1.2
+  wakelock_plus: ^1.2.8
+  shared_preferences: ^2.3.0
+
+flutter:
+  uses-material-design: true
